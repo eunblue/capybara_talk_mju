@@ -11,15 +11,16 @@ const userSchema = mongoose.Schema(
       default:
         "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
     },
-    // isAdmin: {
-    //   type: Boolean,
-    //   required: true,
-    //   default: false,
-    // },
+    notification: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }]
   },
   { timestaps: true }
 );
 
+// isAdmin: {
+//   type: Boolean,
+//   required: true,
+//   default: false,
+// },
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

@@ -6,7 +6,8 @@ const Chat = require("../models/chatModel");
 //@description     Get all Messages
 //@route           GET /api/Message/:chatId
 //@access          Protected
-const allMessages = asyncHandler(async (req, res) => { // 모든 메시지
+const allMessages = asyncHandler(async (req, res) => {
+  // 모든 메시지
   try {
     const messages = await Message.find({ chat: req.params.chatId })
       .populate("sender", "name pic email")
@@ -21,7 +22,8 @@ const allMessages = asyncHandler(async (req, res) => { // 모든 메시지
 //@description     Create New Message
 //@route           POST /api/Message/
 //@access          Protected
-const sendMessage = asyncHandler(async (req, res) => { //최신 메시지
+const sendMessage = asyncHandler(async (req, res) => {
+  //최신 메시지
   const { content, chatId } = req.body;
 
   if (!content || !chatId) {

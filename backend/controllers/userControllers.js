@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
+const Message = require("../models/messageModel");
 const generateToken = require("../config/generateToken");
 
 //@description     Get or Search all users
@@ -64,18 +65,24 @@ const registerUser = asyncHandler(async (req, res) => {
 //@access          Public
 const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  // console.log(email)
-  // console.log(password)
   const user = await User.findOne({ email });
-  // console.log(user)
 
   if (user && (await user.matchPassword(password))) {
+    const notifications = await Message.find({
+      '_id': { $in: user.notification }
+    }).populate([
+      'sender',
+      'chat',
+      { path: 'chat.users', select: 'name email pic', model: 'User' }  // users 필드를 populate하면서 name, email, pic 필드만 선택
+    ]);
+
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
       // isAdmin: user.isAdmin,
       pic: user.pic,
+      notification: notifications,
       token: generateToken(user._id),
     });
   } else {
@@ -84,4 +91,73 @@ const authUser = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { allUsers, registerUser, authUser };//allUsers, registerUser, authUser };
+
+const handleNotif = asyncHandler(async (req, res) => {
+
+  console.log("---------------------------------------------------")
+  console.log("Hello")
+  const { userID, notif_list } = req.body;
+  console.log("userID")
+  console.log(userID)
+  console.log("notif_list")
+  console.log(notif_list)
+
+  if (notif_list) {
+    console.log("1")
+    const notifIds = notif_list.map(notif => notif._id);
+    console.log("2")
+
+    const updatedNotif = await User.findByIdAndUpdate(
+      userID,
+      {
+        notification: notifIds,
+      },
+      {
+        new: true,
+      }
+    )
+    console.log("3")
+    console.log("updatedNotif")
+    console.log(updatedNotif)
+
+
+    if (!updatedNotif) {
+      res.status(404);
+      throw new Error("Notification Not Found");
+    } else {
+      const notificationDetail = await Message.find({
+        '_id': { $in: updatedNotif.notification }
+      }).populate([
+        'sender',
+        'chat',
+        { path: 'chat.users', select: 'name email pic', model: 'User' }  // users 필드를 populate하면서 name, email, pic 필드만 선택
+      ]);
+
+      res.json(notificationDetail);
+    }
+    console.log("3")
+  } else {
+    const user = await User.findById(userID);
+
+    if (!user) {
+      res.status(404);
+      throw new Error("User Not Found");
+    } else {
+      const notificationDetail = await Message.find({
+        '_id': { $in: user.notification }
+      }).populate([
+        'sender',
+        'chat',
+        { path: 'chat.users', select: 'name email pic', model: 'User' }  // users 필드를 populate하면서 name, email, pic 필드만 선택
+      ]);
+
+      res.json(notificationDetail);
+    }
+  }
+});
+
+
+
+
+
+module.exports = { allUsers, registerUser, authUser, handleNotif };

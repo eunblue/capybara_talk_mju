@@ -7,10 +7,10 @@ const User = require("../models/userModel");
 //@access          Protected
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body;
-  console.log(req.body)
-  console.log(userId)
+  // console.log(req.body)
+  // console.log(userId)
   if (!userId) {
-    console.log("UserId param not sent with request");
+    // console.log("UserId param not sent with request");
     return res.sendStatus(400);
   }
 
@@ -29,12 +29,14 @@ const accessChat = asyncHandler(async (req, res) => {
     select: "name pic email",
   });
 
-  if (isChat.length > 0) { //채팅이 존재하는가?
+  if (isChat.length > 0) {
+    //채팅이 존재하는가?
     res.send(isChat[0]);
   } else {
     var chatData = {
       chatName: "sender",
       isGroupChat: false,
+      isBusinessChat: false,
       users: [req.user._id, userId],
     };
 
@@ -61,6 +63,8 @@ const fetchChats = asyncHandler(async (req, res) => {
       .populate("users", "-password")
       .populate("groupAdmin", "-password")
       .populate("latestMessage")
+      .populate("isBusinessChat")
+      .populate("calendar")
       .sort({ updatedAt: -1 })
       .then(async (results) => {
         results = await User.populate(results, {
@@ -86,9 +90,13 @@ const createGroupChat = asyncHandler(async (req, res) => {
   var users = JSON.parse(req.body.users);
 
   if (users.length < 2) {
+    return res.status(400).send("그룹 채팅에서는 2명 이상이 필요합니다.");
+  }
+
+  if (users.length >= 10) {
     return res
       .status(400)
-      .send("그룹 채팅에서는 2명 이상이 필요합니다.");
+      .send("그룹 채팅에서 10명 이상으로 만들 수 없습니다.");
   }
 
   users.push(req.user);
@@ -99,6 +107,7 @@ const createGroupChat = asyncHandler(async (req, res) => {
       users: users,
       isGroupChat: true,
       groupAdmin: req.user,
+      isBusinessChat: req.body.isBusinessChat,
     });
 
     const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
@@ -122,6 +131,32 @@ const renameGroup = asyncHandler(async (req, res) => {
     chatId,
     {
       chatName: chatName,
+    },
+    {
+      new: true,
+    }
+  )
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password");
+
+  if (!updatedChat) {
+    res.status(404);
+    throw new Error("Chat Not Found");
+  } else {
+    res.json(updatedChat);
+  }
+});
+
+// @desc    Rename Group
+// @route   PUT /api/chat/rebusinessChat
+// @access  Protected
+const rebusinessChat = asyncHandler(async (req, res) => {
+  const { chatId, isBusinessChat } = req.body;
+
+  const updatedChat = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+      isBusinessChat: isBusinessChat,
     },
     {
       new: true,
@@ -194,6 +229,70 @@ const addToGroup = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc
+// @route   PUT /api/chat/calenderadd
+// @access  Protected
+const addToCalendar = asyncHandler(async (req, res) => {
+  const { chatId, CalendarName, CalendarDate } = req.body;
+
+  const added = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+      $push: { calendar: { calname: CalendarName, caldate: CalendarDate } },
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!added) {
+    res.status(404);
+    throw new Error("Calendar Not Found");
+  } else {
+    //added.calendars.sort((a, b) => new Date(a.caldate) - new Date(b.caldate));
+    res.json(added);
+  }
+});
+
+const removeCalendar = asyncHandler(async (req, res) => {
+  const { chatId, calendarId } = req.body;
+
+  const removed = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+      $pull: { calendar: { _id: calendarId } },
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!removed) {
+    res.status(404);
+    throw new Error("Chat Not Found");
+  } else {
+    res.json(removed);
+  }
+});
+
+
+//@description     Fetch all chats for a user
+//@route           GET /api/chat/
+//@access          Protected
+const refreshCalendar = asyncHandler(async (req, res) => {
+  const chatId = req.params.chatId; // URL에서 chatId를 가져옵니다.
+
+  const chat = await Chat.findById(chatId);
+
+  if (!chat) {
+    res.status(404);
+    throw new Error("Chat Not Found");
+  } else {
+    res.json(chat); // 찾은 채팅의 calendar 필드를 리턴합니다.
+  }
+});
+
+
 module.exports = {
   accessChat,
   fetchChats,
@@ -201,4 +300,8 @@ module.exports = {
   renameGroup,
   addToGroup,
   removeFromGroup,
+  rebusinessChat,
+  addToCalendar,
+  removeCalendar,
+  refreshCalendar,
 };
