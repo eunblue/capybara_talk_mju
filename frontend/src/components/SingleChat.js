@@ -362,7 +362,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               isRequired
               mt={3}
             >
-              {istyping ? <div>사용자가 입력중입니다...</div> : <></>}
+              {/* {istyping ? <div>사용자가 입력중입니다...</div> : <></>} */}
               <Input
                 variant="filled"
                 bg="#E0E0E0"
