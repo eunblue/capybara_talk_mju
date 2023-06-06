@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 /frontend/node_modules
+/frontend/build
 /.pnp
 .pnp.js
 
@@ -10,7 +11,7 @@
 /coverage
 
 # production
-# /build
+/build
 
 # misc
 .DS_Store
@@ -18,6 +19,7 @@
 .env.development.local
 .env.test.local
 .env.production.local
+.env
 
 npm-debug.log*
 yarn-debug.log*
