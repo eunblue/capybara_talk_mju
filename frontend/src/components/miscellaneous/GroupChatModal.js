@@ -23,7 +23,7 @@ import UserBadgeItem from "../userAvatar/UserBadgeItem";
 import UserListItem from "../userAvatar/UserListItem";
 
 
-const GroupChatModal = ({ children }) => {
+const GroupChatModal = ({ children, fetchChats }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [groupChatName, setGroupChatName] = useState();
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -114,6 +114,10 @@ const GroupChatModal = ({ children }) => {
         config
       );
       setChats([data, ...chats]);
+      fetchChats();
+      setGroupChatName();
+      setSelectedUsers([]);
+      setSearchResult([]);
       onClose();
       toast({
         title: "그룹 채팅이 생성되었습니다!",

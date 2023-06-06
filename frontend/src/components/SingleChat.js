@@ -80,7 +80,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     // socket.on("new chat change", () => setFetchAgain(!fetchAgain))
 
     socket.on("new chat change", () => {
-      console.log("받음티비")
+      // console.log("받음티비")
     })
   }, []);
 
@@ -98,24 +98,42 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         selectedChatCompare._id !== newMessageRecieved.chat._id
       ) {
         if (!notification.includes(newMessageRecieved)) {
-          console.log("newMessageRecieved")
-          console.log(newMessageRecieved)
+          // console.log("newMessageRecieved")
+          // console.log(newMessageRecieved)
           notifHandler([newMessageRecieved, ...notification]);
           setFetchAgain(!fetchAgain);
 
           if (Notification.permission === "granted") {
             if (newMessageRecieved.chat.isBusinessChat === true) {
               if (newMessageRecieved.content.includes("!!공지")) {
-                for (let i = 0; i < 3; i++) {
-                  new Notification(
-                    newMessageRecieved.chat.isGroupChat
-                      ? `[${newMessageRecieved.chat.chatName}]에서 [${newMessageRecieved.sender.name}]님이 보낸 공지 메시지`
-                      : `[${newMessageRecieved.sender.name}]님이 보낸 공지 메시지`,
-                    {
-                      body: `${newMessageRecieved.content}`,
-                      icon: "../public/copycopy.ico",
+                if (newMessageRecieved.chat.isGroupChat === true) {
+                  if (newMessageRecieved.chat.groupAdmin === newMessageRecieved.sender._id) {
+                    for (let i = 0; i < 3; i++) {
+                      new Notification(
+                        newMessageRecieved.chat.isGroupChat
+                          ? `[${newMessageRecieved.chat.chatName}]에서 [${newMessageRecieved.sender.name}]님이 보낸 공지 메시지`
+                          : `[${newMessageRecieved.sender.name}]님이 보낸 공지 메시지`,
+                        {
+                          body: `${newMessageRecieved.content}`,
+                          icon: "../public/copycopy.ico",
+                        }
+                      );
                     }
-                  );
+                  } else {
+                    console.log("오류")
+                  }
+                } else {
+                  for (let i = 0; i < 3; i++) {
+                    new Notification(
+                      newMessageRecieved.chat.isGroupChat
+                        ? `[${newMessageRecieved.chat.chatName}]에서 [${newMessageRecieved.sender.name}]님이 보낸 공지 메시지`
+                        : `[${newMessageRecieved.sender.name}]님이 보낸 공지 메시지`,
+                      {
+                        body: `${newMessageRecieved.content}`,
+                        icon: "../public/copycopy.ico",
+                      }
+                    );
+                  }
                 }
               }
             }
@@ -137,8 +155,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const notifHandler = async (notif_list) => {
     try {
       setNotification(notif_list);
-      console.log("notif_list");
-      console.log(notif_list);
+      // console.log("notif_list");
+      // console.log(notif_list);
       const config = {
         headers: {
           Authorization: `Bearer ${user.token}`,
@@ -184,7 +202,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         `/api/message/${selectedChat._id}`,
         config
       );
-      console.log(messages);
+      // console.log(messages);
       setMessages(data);
       setLoading(false);
 
@@ -221,7 +239,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           config
         );
         socket.emit("new message", data);
-        console.log(data);
+        // console.log(data);
         setMessages([...messages, data]);
       } catch (error) {
         toast({

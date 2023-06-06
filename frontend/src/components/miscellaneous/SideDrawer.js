@@ -175,6 +175,27 @@ const SideDrawer = () => {
     }
   };
 
+  const setSelectedChatHandler = async (chat) => {
+    const sChat = chats.find(c => c._id === chat._id);
+
+    if (sChat) {
+      setSelectedChat(sChat);
+    } else {
+      toast({
+        title: "채팅을 찾을 수 없습니다.",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom-left",
+      });
+    }
+  };
+
+
+
+
+
   return (
     <>
       <Box
@@ -212,7 +233,7 @@ const SideDrawer = () => {
             </MenuButton>
             <MenuList pl={2}>
               {!notification.length && "새로운 메시지가 없습니다."}
-              {notification.map((notif) => (
+              {/* {notification.map((notif) => (
                 <MenuItem
                   key={notif._id}
                   onClick={() => {
@@ -229,7 +250,31 @@ const SideDrawer = () => {
                     // )}]님이 보낸 메시지 : ${notif.content}`
                   }
                 </MenuItem>
-              ))}
+              ))} */}
+              {notification.map((notif) => {
+                const isNotice = notif.content.includes("!!공지");
+                const isGroupAdmin = notif.chat.isGroupChat && (notif.chat.groupAdmin === notif.sender._id);
+
+                const shouldBeBold = notif.chat.isBusinessChat && ((notif.chat.isGroupChat && isGroupAdmin) || !notif.chat.isGroupChat);
+
+                return (
+                  <MenuItem
+                    key={notif._id}
+                    onClick={() => {
+                      setSelectedChatHandler(notif.chat);
+                      notifHandler(notif);
+                    }}
+                  >
+                    <Text fontWeight={isNotice && shouldBeBold ? "bold" : "normal"}>
+                      {notif.chat.isGroupChat
+                        ? `[${notif.chat.chatName}]에서 [${notif.sender.name}]님이 보낸 메시지 : ${notif.content}`
+                        : `[${notif.sender.name}]님이 보낸 메시지 : ${notif.content}`}
+                    </Text>
+                  </MenuItem>
+                );
+              })}
+
+
             </MenuList>
           </Menu>
           <Menu>

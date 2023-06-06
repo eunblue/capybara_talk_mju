@@ -40,7 +40,7 @@ const MyChats = ({ fetchAgain }) => {
     };
 
     const { data } = await axios.get("/api/chat", config);
-    console.log(data);
+    // console.log(data);
     setAllChats(data);
     setChats(data);
   };
@@ -60,6 +60,10 @@ const MyChats = ({ fetchAgain }) => {
     }
     fetchChats();
   }, [fetchAgain, selectedChat]);
+
+  // useEffect(() => {
+  //   fetchChats();
+  // }, [chats]);
 
   return (
     <Box // 채팅방 목록
@@ -83,7 +87,7 @@ const MyChats = ({ fetchAgain }) => {
         alignItems="center"
       >
         내 채팅방
-        <GroupChatModal>
+        <GroupChatModal fetchChats={fetchChats}>
           <Button
             display="flex"
             fontSize={{ base: "17px", md: "10px", lg: "17px" }}

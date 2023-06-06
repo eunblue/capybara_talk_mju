@@ -25,11 +25,6 @@ const Login = () => {
 
   const submitHandler = async () => {
     // console.log("1");
-    if (window.Notification && Notification.permission !== "granted") {
-      // console.log("2");
-      const status = await Notification.requestPermission();
-      console.log("Status: ", status);  // 'granted' or 'denied'
-    }
     // console.log("4");
 
 
@@ -42,8 +37,6 @@ const Login = () => {
     //   Notification.requestPermission();
     //   console.log("하이3");
     // }
-
-
     setLoading(true);
     if (!email || !password) {
       toast({
@@ -89,6 +82,18 @@ const Login = () => {
         setNotification(data.notification); // Add this line to set the notification state
 
         history.push("/chats");
+        if (window.Notification && Notification.permission !== "granted") {
+          // console.log("2");
+          toast({
+            title: "브라우저 알림 허용을 눌러주세요!",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+            position: "top-left",
+          });
+          const status = await Notification.requestPermission();
+          console.log("Status: ", status);  // 'granted' or 'denied'
+        }
 
       }
     } catch (error) {

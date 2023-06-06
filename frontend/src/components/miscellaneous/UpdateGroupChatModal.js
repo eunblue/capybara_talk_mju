@@ -79,6 +79,17 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain, socket
   const handleRename = async () => {
     if (!groupChatName) return;
 
+    if (selectedChat.groupAdmin._id !== user._id) {
+      toast({
+        title: "방장만 가능합니다!",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+      return;
+    }
+
     try {
       setRenameLoading(true);
       const config = {
@@ -95,9 +106,10 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain, socket
         config
       );
 
-      console.log(data._id);
+      // console.log(data._id);
       setSelectedChat(data);
       setFetchAgain(!fetchAgain);
+      setGroupChatName();
       setRenameLoading(false);
     } catch (error) {
       toast({
@@ -155,10 +167,10 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain, socket
       return;
     }
 
-    console.log("허있")
-    console.log(selectedChat.users)
-    console.log("허있")
-    console.log(selectedChat.users.length)
+    // console.log("허있")
+    // console.log(selectedChat.users)
+    // console.log("허있")
+    // console.log(selectedChat.users.length)
     if (selectedChat.users.length >= 10) {
       toast({
         title: "그룹 채팅에 10명 이상 추가하실 수 없습니다!",
@@ -214,7 +226,7 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain, socket
   };
 
   const handleRemove = async (user1) => {
-    if (selectedChat.groupAdmin._id !== user._id && user1._id !== user._id) {
+    if (selectedChat.groupAdmin._id !== user._id) {
       toast({
         title: "방장만 가능합니다!",
         status: "error",

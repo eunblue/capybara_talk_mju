@@ -47,8 +47,8 @@ const ChatCalendarModal = ({ fetchMessages, fetchAgain, setFetchAgain, socket })
           `/api/chat/calendarRefresh/${selectedChat._id}`,
           config
         );
-        console.log("data");
-        console.log(data);
+        // console.log("data");
+        // console.log(data);
         setSelectedChat(data);
       } catch (error) {
         toast({
@@ -147,10 +147,10 @@ const ChatCalendarModal = ({ fetchMessages, fetchAgain, setFetchAgain, socket })
       );
 
       setSelectedChat(data);
-      console.log("1socket.emit(new chat change, selectedChat._id);");
+      // console.log("1socket.emit(new chat change, selectedChat._id);");
       socket.emit("new chat change", selectedChat._id);
-      console.log("2socket.emit(new chat change, selectedChat._id);");
-      console.log(data.calendar);
+      // console.log("2socket.emit(new chat change, selectedChat._id);");
+      // console.log(data.calendar);
 
       toast({
         title: "일정이 삭제되었습니다.",
